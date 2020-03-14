@@ -9,7 +9,7 @@ href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 <div class="container">
 <label>Search</label>
 <form action="" method="POST">
-<!-- NEW TEST LINE -->
+<!-- Dropdown Menu to select search criteria -->
 <select name="mineral">
 <option value="SiO2">Select Mineral</option><!--SiO2 left in blank field for full data print-->
 <option value="Pedon">Pedon</option>
@@ -24,33 +24,43 @@ href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 <option value="Na2O">Na2O</option>
 <option value="P2O5">P2O5</option>
 </select>
-<!--END NEW TEST LINE-->
+
 <input type="text" placeholder="Type numeric value here" name="search">&nbsp;
 <input type="submit" value="Search" name="Search">&nbsp;
 <p>Search by mineral content or specific soil sample. Select the mineral or 'Pedon' for soil sample, and enter a numeric value you're looking for.</p>
 <p>Leave field empty to show entire dataset.</p>
 </form>
+<!-- MySQLi database connection info-->
 <?php
 $localhost = "sql105.epizy.com";
 $username = "CENSORED";
 $password = "CENSORED";
 $dbname = "epiz_24801292_test";
-$con = new mysqli($localhost, $username, $password, $dbname);
+$con = new mysqli($localhost, $username, $password, $dbname); /*creating new connection*/
+
+/*Error checking on connection status*/
 if( $con->connect_error){
     die('Error: ' . $con->connect_error);
 }
+
 if(isset($_POST['mineral'])){
     $mineral = $_POST['mineral'];
 }
 
+/*Test if "Pedon" has been selected from dropdown menu, only return result of that one row*/
 if( isset($_POST['search']) ){
-    $numValue = mysqli_real_escape_string($con, htmlspecialchars($_POST['search']));
-   
-    $sql = "SELECT * FROM `epiz_24801292_soil_db`.`TABLE 1` WHERE $mineral REGEXP '^$numValue'";/*SEMI WORKING*/
+    if($mineral == "Pedon") {
+        $numValue = mysqli_real_escape_string($con, htmlspecialchars($_POST['search']));
+        $sql = "SELECT * FROM `epiz_24801292_soil_db`.`TABLE 1` WHERE $mineral = '$numValue'";
+    } else {
+        $numValue = mysqli_real_escape_string($con, htmlspecialchars($_POST['search']));
+        $sql = "SELECT * FROM `epiz_24801292_soil_db`.`TABLE 1` WHERE $mineral REGEXP '^$numValue'";
+    }
+    
 }
+
 $result = $con->query($sql);
-//echo "$result";
-//echo "$name";
+
 ?>
 
 <h2>Soil Data</h2>
